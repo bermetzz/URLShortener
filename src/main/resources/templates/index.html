@@ -1,10 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 50px;
+        }
+
+        input, button {
+            padding: 10px;
+            font-size: 1rem;
+            margin: 10px;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
 </head>
 <body>
-$END$
+<h1>URL Shortener</h1>
+<label for="urlInput"></label><input type="text" id="urlInput" placeholder="Paste original URL" size="50">
+<button onclick="shortenUrl()">Shorten</button>
+
+<div class="result" id="result"></div>
+
+<script>
+    function shortenUrl() {
+        const input = document.getElementById("urlInput").value;
+
+        fetch("/api/url/shorten", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({url: input})
+        })
+            .then(res => res.text())
+            .then(data => {
+                document.getElementById("result").innerHTML = `
+                     <span>Shortened URL: ${data}</span>`;
+            })
+            .catch(err => {
+                document.getElementById("result").innerText = "Error: " + err;
+            });
+    }
+</script>
+
+<h2>Follow the shortened link</h2>
+<label for="redirectInput"></label><input type="text" id="redirectInput" placeholder="Insert token (eg jhfYY2j)">
+<button onclick="redirectToOriginal()">Open</button>
+
+<script>
+    function redirectToOriginal() {
+        const hash = document.getElementById("redirectInput").value;
+        if (!hash) return alert("Enter token!");
+
+        window.location.href = `/api/url/${hash}`;
+    }
+</script>
 </body>
 </html>
